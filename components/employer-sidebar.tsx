@@ -59,9 +59,7 @@ const menuSections: MenuSection[] = [
     label: 'Finance & Reports',
     items: [
       { label: 'Payroll', href: '/employer/payroll', icon: <DollarSign size={20} /> },
-      { label: 'Analytics', href: '/employer/analytics', icon: <BarChart3 size={20} /> },
       { label: 'Reports', href: '/employer/reports', icon: <FileText size={20} /> },
-      { label: 'Documents', href: '/employer/documents', icon: <FileText size={20} /> },
     ],
   },
   {
