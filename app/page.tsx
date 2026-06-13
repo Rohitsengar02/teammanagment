@@ -510,7 +510,7 @@ export default function HomePage() {
       </main>
 
       {/* Workspace Selection Section */}
-      <section id="panels" className="w-full max-w-7xl mx-auto px-6 py-20 relative z-20 text-center scroll-mt-20">
+      <section id="panels" className="w-full max-w-7xl mx-auto px-6 py-20 relative z-30 text-center scroll-mt-20">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
             Select Your Workspace Portal
@@ -541,13 +541,11 @@ export default function HomePage() {
                 <p className="text-sm text-slate-400 leading-relaxed mb-8">{role.description}</p>
               </div>
 
-              <Link href={role.href} className="w-full">
-                <button
-                  type="button"
-                  className="w-full py-3.5 rounded-2xl font-bold text-xs tracking-wider uppercase transition-all duration-300 text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 hover:border-slate-600 hover:shadow-lg cursor-pointer"
-                >
-                  Enter Portal &rarr;
-                </button>
+              <Link
+                href={role.href}
+                className="w-full py-3.5 rounded-2xl font-bold text-xs tracking-wider uppercase transition-all duration-300 text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 hover:border-slate-600 hover:shadow-lg flex items-center justify-center cursor-pointer"
+              >
+                Enter Portal &rarr;
               </Link>
             </motion.div>
           ))}
