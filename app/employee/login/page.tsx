@@ -41,7 +41,7 @@ export default function EmployeeLoginPage() {
             employerId: localStorage.getItem('registeredEmployerId') || 'mock-employer-id',
           }))
           await new Promise((resolve) => setTimeout(resolve, 800))
-          router.push('/employee/dashboard')
+          router.push('/dashboard')
           return
         }
         setErrorMsg('No employee account found with this email.')
@@ -70,7 +70,7 @@ export default function EmployeeLoginPage() {
       }))
 
       await new Promise((resolve) => setTimeout(resolve, 800))
-      router.push('/employee/dashboard')
+      router.push('/dashboard')
     } catch (err) {
       console.error('Error during employee login:', err)
       setErrorMsg('Login failed. Please check connection and credentials.')

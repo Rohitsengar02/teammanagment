@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BarChart3,
@@ -16,6 +16,7 @@ import {
   Users,
   X,
   ChevronRight,
+  LogOut,
 } from 'lucide-react'
 
 const menuItems = [
@@ -35,6 +36,24 @@ const menuItems = [
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const [employee, setEmployee] = useState<any>(null)
+
+  useEffect(() => {
+    const data = localStorage.getItem('loggedInEmployee')
+    if (data) {
+      try {
+        setEmployee(JSON.parse(data))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('loggedInEmployee')
+    router.push('/')
+  }
 
   return (
     <>
@@ -91,14 +110,27 @@ export function Sidebar() {
         </nav>
 
         {/* User info */}
-        <div className="p-4 border-t border-slate-200">
+        <div className="p-4 border-t border-slate-200 flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-900">Sales Team</p>
-              <p className="text-xs text-slate-500">Admin</p>
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
+              {employee ? employee.name.charAt(0).toUpperCase() : 'S'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900 truncate">
+                {employee ? employee.name : 'Sales Team'}
+              </p>
+              <p className="text-xs text-slate-500 truncate">
+                {employee ? `${employee.role || 'Employee'} (${employee.department || 'Staff'})` : 'Admin'}
+              </p>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 text-sm font-semibold transition-colors border border-red-100"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
         </div>
       </motion.aside>
 
