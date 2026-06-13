@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, ShoppingCart, Users, Code2, ThumbsUp, Lock, MousePointer } from 'lucide-react'
+import { ArrowRight, Users, User, ThumbsUp, Lock, MousePointer, Code2, ShoppingCart } from 'lucide-react'
 import { Component as StripeGradient } from '@/components/ui/stripe-like-gradient-shader'
 import TeamShowcase from '@/components/ui/team-showcase'
 import { Gallery4 } from '@/components/ui/gallery4'
@@ -22,16 +22,6 @@ interface RoleOption {
 
 const roles: RoleOption[] = [
   {
-    id: 'sales',
-    name: 'Sales Panel',
-    description: 'Manage leads, pipeline, and sales performance metrics',
-    icon: <ShoppingCart size={20} />,
-    href: '/dashboard',
-    color: 'from-blue-600 to-cyan-500',
-    bgColor: 'bg-blue-500/10 text-cyan-400 border-blue-500/20',
-    shadowColor: 'shadow-blue-500/10'
-  },
-  {
     id: 'employer',
     name: 'Employer Panel',
     description: 'Manage employee directories, payroll, shifts, and assign tasks',
@@ -42,14 +32,14 @@ const roles: RoleOption[] = [
     shadowColor: 'shadow-purple-500/10'
   },
   {
-    id: 'tech',
-    name: 'Tech Panel',
-    description: 'Track developer boards, codebase issues, and technical milestones',
-    icon: <Code2 size={20} />,
-    href: '/tech/login',
-    color: 'from-emerald-600 to-teal-500',
-    bgColor: 'bg-emerald-500/10 text-teal-400 border-emerald-500/20',
-    shadowColor: 'shadow-emerald-500/10'
+    id: 'employee',
+    name: 'Employee Panel',
+    description: 'View assigned tasks, schedule shifts, and update attendance',
+    icon: <User size={20} />,
+    href: '/employee/login',
+    color: 'from-blue-600 to-cyan-500',
+    bgColor: 'bg-blue-500/10 text-cyan-400 border-blue-500/20',
+    shadowColor: 'shadow-blue-500/10'
   },
 ]
 
@@ -271,7 +261,7 @@ export default function HomePage() {
           <div className="absolute left-[3%] top-[5%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-purple-500 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -279,8 +269,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "0s",
@@ -309,7 +299,7 @@ export default function HomePage() {
           <div className="absolute left-[20%] top-[56%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-cyan-400 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -317,8 +307,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "1.6s",
@@ -336,18 +326,18 @@ export default function HomePage() {
                 }}
               />
               <div className="absolute -bottom-1 -right-1 bg-cyan-600 text-white rounded-full p-1 border border-white z-20">
-                <ShoppingCart size={9} />
+                <User size={9} />
               </div>
             </div>
-            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Amit (Sales)</span>
-            <span className="text-[8px] font-semibold text-blue-600 uppercase tracking-wider mt-1">2. Qualifies Lead</span>
+            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Amit (Employee)</span>
+            <span className="text-[8px] font-semibold text-blue-600 uppercase tracking-wider mt-1">2. Qualifies Task</span>
           </div>
 
-          {/* Step 3: Neha Sharma (Tech) */}
+          {/* Step 3: Neha Sharma (Employee) */}
           <div className="absolute left-[38%] top-[5%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-emerald-400 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -355,8 +345,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "3.2s",
@@ -374,18 +364,18 @@ export default function HomePage() {
                 }}
               />
               <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white rounded-full p-1 border border-white z-20">
-                <Code2 size={10} />
+                <User size={10} />
               </div>
             </div>
-            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Neha (Tech)</span>
-            <span className="text-[8px] font-semibold text-emerald-600 uppercase tracking-wider mt-1">3. Writes Code</span>
+            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Neha (Employee)</span>
+            <span className="text-[8px] font-semibold text-emerald-600 uppercase tracking-wider mt-1">3. Updates Status</span>
           </div>
 
           {/* Step 4: Vikram Patel (Sales Manager) */}
           <div className="absolute left-[56%] top-[56%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-pink-400 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -393,8 +383,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "4.8s",
@@ -413,14 +403,14 @@ export default function HomePage() {
               />
             </div>
             <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Vikram (Mgr)</span>
-            <span className="text-[8px] font-semibold text-pink-600 uppercase tracking-wider mt-1">4. Reviews Pipeline</span>
+            <span className="text-[8px] font-semibold text-pink-600 uppercase tracking-wider mt-1">4. Reviews Progress</span>
           </div>
 
-          {/* Step 5: Rahul (Dev) */}
+          {/* Step 5: Rahul (Employee) */}
           <div className="absolute left-[74%] top-[5%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-indigo-400 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -428,8 +418,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "6.4s",
@@ -439,7 +429,7 @@ export default function HomePage() {
               />
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80"
-                alt="Rahul Dev"
+                alt="Rahul Employee"
                 className="relative w-14 h-14 rounded-full object-cover border-2 border-white shadow-xl z-10"
                 style={{
                   animation: "arrivalCardScale 8s ease-in-out infinite",
@@ -447,15 +437,15 @@ export default function HomePage() {
                 }}
               />
             </div>
-            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Rahul (Dev)</span>
-            <span className="text-[8px] font-semibold text-indigo-600 uppercase tracking-wider mt-1">5. Deploys Features</span>
+            <span className="text-[10px] font-bold text-slate-800 bg-white/80 px-2 py-0.5 rounded-full shadow-sm mt-1.5 backdrop-blur-sm">Rahul (Employee)</span>
+            <span className="text-[8px] font-semibold text-indigo-600 uppercase tracking-wider mt-1">5. Completes Tasks</span>
           </div>
 
           {/* Step 6: Client (Guest) */}
           <div className="absolute left-[90%] top-[56%] flex flex-col items-center">
             <div className="relative group cursor-pointer">
               {/* Pulsing Glow Ring */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-full border-2 border-amber-400 pointer-events-none z-10"
                 style={{
                   animation: "arrivalGlowRing 8s cubic-bezier(0.16, 1, 0.3, 1) infinite",
@@ -463,8 +453,8 @@ export default function HomePage() {
                 }}
               />
               {/* Outer Pulse Frame */}
-              <div 
-                className="absolute -inset-1.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity" 
+              <div
+                className="absolute -inset-1.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur-md opacity-35 group-hover:opacity-75 transition-opacity"
                 style={{
                   animation: "arrivalPulse 8s ease-in-out infinite",
                   animationDelay: "0s",
@@ -520,7 +510,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {roles.map((role, idx) => (
             <motion.div
               key={role.id}
@@ -610,7 +600,7 @@ export default function HomePage() {
       <footer className="bg-slate-950 text-slate-400 relative z-20 border-t border-slate-800">
         <div className="w-full max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-6 mb-12">
-            
+
             {/* Col 1: Logo & Mission */}
             <div className="flex flex-col gap-4 text-left">
               <Link href="/" className="flex items-center gap-2">
@@ -633,18 +623,13 @@ export default function HomePage() {
               </h3>
               <ul className="flex flex-col gap-2.5 text-sm">
                 <li>
-                  <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    Sales Panel <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-1.5 py-0.5 rounded-full font-bold">Active</span>
-                  </Link>
-                </li>
-                <li>
                   <Link href="/employer/login" className="hover:text-white transition-colors flex items-center gap-1.5">
                     Employer Portal <span className="text-[10px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded-full font-bold">Secure</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tech/login" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    Tech Dashboard <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded-full font-bold">Dev</span>
+                  <Link href="/employee/login" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    Employee Portal <span className="text-[10px] bg-blue-500/10 text-cyan-400 px-1.5 py-0.5 rounded-full font-bold">Active</span>
                   </Link>
                 </li>
               </ul>

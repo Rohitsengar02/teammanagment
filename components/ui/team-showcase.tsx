@@ -202,7 +202,7 @@ function PhotoCard({
   const isActive = hoveredId === member.id
   const isDimmed = hoveredId !== null && !isActive
 
-  const childVariants = {
+  const childVariants: any = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 80 } },
   }
