@@ -14,7 +14,7 @@ export default function EmployerLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   // Auth fields
-  const [email, setEmail] = useState('priya@company.com')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mobile, setMobile] = useState('')
 
