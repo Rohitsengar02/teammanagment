@@ -58,27 +58,23 @@ export default function EmployerLoginPage() {
       const q = query(collection(db, 'employers'), where('email', '==', email))
       const querySnapshot = await getDocs(q)
       
-      let docId = ''
-
-      if (!querySnapshot.empty) {
-        // Document found!
-        docId = querySnapshot.docs[0].id
-      } else {
-        // Fallback: If document is not found, automatically register a new default one for demo convenience
-        const docRef = await addDoc(collection(db, 'employers'), {
-          email,
-          mobile: '+91-9876543210',
-          companyName: email.split('@')[0].toUpperCase() + ' CORP',
-          industry: 'Technology',
-          companySize: '11-50',
-          features: ['Leads Management', 'Visual Deal Pipelines'],
-          teamCount: '15',
-          locations: 'Bangalore, India',
-          shiftModel: 'Hybrid',
-          createdAt: new Date().toISOString(),
-        })
-        docId = docRef.id
+      if (querySnapshot.empty) {
+        alert('No employer account found with this email. Please sign up first.')
+        setIsLoading(false)
+        return
       }
+
+      const empDoc = querySnapshot.docs[0]
+      const empData = empDoc.data()
+
+      // Enforce password check
+      if (empData.password && empData.password !== password) {
+        alert('Incorrect password. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const docId = empDoc.id
 
       // Store doc ID and generate an access token
       localStorage.setItem('registeredEmployerId', docId)
@@ -89,7 +85,7 @@ export default function EmployerLoginPage() {
       router.push('/employer/dashboard')
     } catch (err) {
       console.error('Error logging in:', err)
-      alert('Login failed. Please check your Firebase credentials.')
+      alert('Login failed. Please check your network or credentials.')
     } finally {
       setIsLoading(false)
     }
@@ -102,6 +98,7 @@ export default function EmployerLoginPage() {
       // Save onboarding data in Firestore 'employers' collection
       const docRef = await addDoc(collection(db, 'employers'), {
         email,
+        password, // Save password
         mobile,
         companyName,
         industry,
