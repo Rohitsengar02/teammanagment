@@ -192,7 +192,7 @@ export default function HomePage() {
             href="#panels"
             className="px-8 py-4 bg-slate-950 hover:bg-slate-900 text-white font-bold rounded-full text-base shadow-xl transition-all hover:scale-[1.03] inline-block"
           >
-            Book a demo
+            Get Started
           </Link>
         </motion.div>
 
@@ -508,6 +508,51 @@ export default function HomePage() {
         </div>
 
       </main>
+
+      {/* Workspace Selection Section */}
+      <section id="panels" className="w-full max-w-7xl mx-auto px-6 py-20 relative z-20 text-center scroll-mt-20">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
+            Select Your Workspace Portal
+          </h2>
+          <p className="text-slate-400 text-base">
+            Choose a dashboard role below to enter and manage your specific operations.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {roles.map((role, idx) => (
+            <motion.div
+              key={role.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              className="bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-800 p-8 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl group relative overflow-hidden text-left"
+            >
+              {/* Glow backdrop effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+              <div>
+                <div className={`p-4 rounded-2xl bg-gradient-to-br ${role.color} text-white w-fit mb-6 shadow-lg`}>
+                  {role.icon}
+                </div>
+                <h3 className="text-xl font-extrabold text-white mb-3">{role.name}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed mb-8">{role.description}</p>
+              </div>
+
+              <Link href={role.href} className="w-full">
+                <button
+                  type="button"
+                  className="w-full py-3.5 rounded-2xl font-bold text-xs tracking-wider uppercase transition-all duration-300 text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 hover:border-slate-600 hover:shadow-lg cursor-pointer"
+                >
+                  Enter Portal &rarr;
+                </button>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
       {/* Tilted Infinite Marquee Section - Full Width, White Background, Black Text */}
       <div className="w-full py-8 bg-white border-y border-slate-200/80 -rotate-2 scale-[1.6] overflow-hidden relative z-20 shadow-lg mt-16 -mb-4">
