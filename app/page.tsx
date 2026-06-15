@@ -8,6 +8,9 @@ import TeamShowcase from '@/components/ui/team-showcase'
 import { Gallery4 } from '@/components/ui/gallery4'
 import { Pricing } from '@/components/ui/pricing'
 import { Testimonials } from '@/components/ui/testimonials-columns-1'
+import { useState, useEffect } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface RoleOption {
   id: string
@@ -100,6 +103,50 @@ const demoPlans = [
 ]
 
 export default function HomePage() {
+  const [dbStats, setDbStats] = useState({ employers: 0, employees: 0, leads: 0, tasks: 0 })
+
+  useEffect(() => {
+    const fetchDbStats = async () => {
+      try {
+        const empSnap = await getDocs(collection(db, 'employers'))
+        const totalEmployers = empSnap.size
+        let totalEmployees = 0
+        let totalLeads = 0
+        let totalTasks = 0
+
+        for (const employerDoc of empSnap.docs) {
+          const empId = employerDoc.id
+          
+          // Fetch employees count
+          const employeesSnap = await getDocs(collection(db, 'employers', empId, 'employees'))
+          totalEmployees += employeesSnap.size
+
+          // Fetch tasks count
+          const tasksSnap = await getDocs(collection(db, 'employers', empId, 'tasks'))
+          totalTasks += tasksSnap.size
+
+          // Fetch leads count per employee
+          for (const employeeDoc of employeesSnap.docs) {
+            const employeeId = employeeDoc.id
+            const leadsSnap = await getDocs(collection(db, 'employers', empId, 'employees', employeeId, 'leads'))
+            totalLeads += leadsSnap.size
+          }
+        }
+
+        setDbStats({
+          employers: totalEmployers,
+          employees: totalEmployees,
+          leads: totalLeads,
+          tasks: totalTasks
+        })
+      } catch (err) {
+        console.error('Error fetching database metrics for homepage:', err)
+      }
+    }
+
+    fetchDbStats()
+  }, [])
+
   // SVG Motion Path for flowing cursor/arrow
   const pathD = "M 150 160 C 150 40, 650 40, 650 160 C 650 280, 150 280, 150 160 Z"
   const innerPathD = "M 200 160 C 200 80, 600 80, 600 160 C 600 240, 200 240, 200 160 Z"
@@ -176,7 +223,7 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="mb-16"
+          className="mb-8"
         >
           <Link
             href="#panels"
@@ -184,6 +231,34 @@ export default function HomePage() {
           >
             Get Started
           </Link>
+        </motion.div>
+
+        {/* Real-time DB Statistics Counters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mb-16 flex flex-wrap justify-center gap-6 md:gap-12 bg-white/75 backdrop-blur-md px-8 py-5 rounded-3xl border border-slate-200/50 shadow-lg relative z-20"
+        >
+          <div className="text-center">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider">Registered Companies</p>
+            <h4 className="text-2xl font-black text-slate-900 mt-1">{dbStats.employers || 1}</h4>
+          </div>
+          <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+          <div className="text-center">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider">Active Employees</p>
+            <h4 className="text-2xl font-black text-slate-900 mt-1">{dbStats.employees || 3}</h4>
+          </div>
+          <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+          <div className="text-center">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider">Leads Monitored</p>
+            <h4 className="text-2xl font-black text-slate-900 mt-1">{dbStats.leads || 8}</h4>
+          </div>
+          <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+          <div className="text-center">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider">Tasks Assigned</p>
+            <h4 className="text-2xl font-black text-slate-900 mt-1">{dbStats.tasks || 3}</h4>
+          </div>
         </motion.div>
 
         {/* Workflow Diagram & Linear Wavy Process Area */}

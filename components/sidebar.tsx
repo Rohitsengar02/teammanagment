@@ -17,6 +17,7 @@ import {
   X,
   ChevronRight,
   LogOut,
+  Bell,
 } from 'lucide-react'
 
 const menuItems = [
@@ -25,11 +26,10 @@ const menuItems = [
   { href: '/pipeline', label: 'Pipeline', icon: BarChart3 },
   { href: '/tasks', label: 'Tasks', icon: FileText },
   { href: '/calendar', label: 'Calendar', icon: Calendar },
-  { href: '/companies', label: 'Companies', icon: Users },
-  { href: '/contacts', label: 'Contacts', icon: Users },
+  { href: '/leaves', label: 'Leaves', icon: Calendar },
   { href: '/notes', label: 'Notes', icon: MessageSquare },
-  { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -40,13 +40,25 @@ export function Sidebar() {
   const [employee, setEmployee] = useState<any>(null)
 
   useEffect(() => {
-    const data = localStorage.getItem('loggedInEmployee')
-    if (data) {
-      try {
-        setEmployee(JSON.parse(data))
-      } catch (e) {
-        console.error(e)
+    const loadEmployee = () => {
+      const data = localStorage.getItem('loggedInEmployee')
+      if (data) {
+        try {
+          setEmployee(JSON.parse(data))
+        } catch (e) {
+          console.error(e)
+        }
       }
+    }
+
+    loadEmployee()
+
+    window.addEventListener('storage', loadEmployee)
+    window.addEventListener('local-storage-update', loadEmployee)
+
+    return () => {
+      window.removeEventListener('storage', loadEmployee)
+      window.removeEventListener('local-storage-update', loadEmployee)
     }
   }, [])
 

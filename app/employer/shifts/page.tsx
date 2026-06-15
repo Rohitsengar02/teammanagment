@@ -2,7 +2,7 @@
 
 import { EmployerLayout } from '@/components/employer-layout'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Clock, X, Edit2, Trash2, Users, Check, Loader2, AlertTriangle, Calendar } from 'lucide-react'
+import { Plus, Clock, X, Edit2, Trash2, Users, Check, Loader2, AlertTriangle, Calendar, RefreshCw } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -15,6 +15,12 @@ interface Shift {
   endTime: string
   daysPerWeek: number
   employees: string[]
+  isRotational?: boolean
+  dayStartTime?: string
+  dayEndTime?: string
+  nightStartTime?: string
+  nightEndTime?: string
+  rotationCycle?: string
 }
 
 interface Employee {
@@ -44,6 +50,14 @@ export default function ShiftsPage() {
   const [daysPerWeek, setDaysPerWeek] = useState(5)
   const [assignedEmployeeIds, setAssignedEmployeeIds] = useState<string[]>([])
 
+  // Rotational states
+  const [isRotational, setIsRotational] = useState(false)
+  const [dayStartTime, setDayStartTime] = useState('09:00')
+  const [dayEndTime, setDayEndTime] = useState('17:00')
+  const [nightStartTime, setNightStartTime] = useState('17:00')
+  const [nightEndTime, setNightEndTime] = useState('01:00')
+  const [rotationCycle, setRotationCycle] = useState('1 week Day / 1 week Night')
+
   const employerId = typeof window !== 'undefined' ? localStorage.getItem('registeredEmployerId') : null
 
   // Fetch data
@@ -59,6 +73,7 @@ export default function ShiftsPage() {
         endTime: s.endTime,
         daysPerWeek: s.daysPerWeek,
         employees: s.employees,
+        isRotational: false,
       }))
       setShifts(formattedMock)
       setLoading(false)
@@ -91,6 +106,7 @@ export default function ShiftsPage() {
             endTime: '17:00',
             daysPerWeek: 5,
             employees: finalEmployees.slice(0, 2).map((e) => e.id),
+            isRotational: false
           },
           {
             name: 'Evening Shift',
@@ -98,6 +114,7 @@ export default function ShiftsPage() {
             endTime: '01:00',
             daysPerWeek: 5,
             employees: finalEmployees.slice(2, 3).map((e) => e.id),
+            isRotational: false
           },
         ]
 
@@ -146,6 +163,12 @@ export default function ShiftsPage() {
     setEndTime('17:00')
     setDaysPerWeek(5)
     setAssignedEmployeeIds([])
+    setIsRotational(false)
+    setDayStartTime('09:00')
+    setDayEndTime('17:00')
+    setNightStartTime('17:00')
+    setNightEndTime('01:00')
+    setRotationCycle('1 week Day / 1 week Night')
     setIsModalOpen(true)
   }
 
@@ -157,6 +180,12 @@ export default function ShiftsPage() {
     setEndTime(shift.endTime)
     setDaysPerWeek(shift.daysPerWeek)
     setAssignedEmployeeIds(shift.employees || [])
+    setIsRotational(!!shift.isRotational)
+    setDayStartTime(shift.dayStartTime || '09:00')
+    setDayEndTime(shift.dayEndTime || '17:00')
+    setNightStartTime(shift.nightStartTime || '17:00')
+    setNightEndTime(shift.nightEndTime || '01:00')
+    setRotationCycle(shift.rotationCycle || '1 week Day / 1 week Night')
     setIsModalOpen(true)
   }
 
@@ -171,22 +200,28 @@ export default function ShiftsPage() {
     if (!shiftName.trim()) return
 
     setSaving(true)
-    const shiftData = {
+    const shiftData: Partial<Shift> = {
       name: shiftName,
-      startTime,
-      endTime,
+      startTime: isRotational ? dayStartTime : startTime,
+      endTime: isRotational ? dayEndTime : endTime,
       daysPerWeek,
       employees: assignedEmployeeIds,
+      isRotational,
+      dayStartTime: isRotational ? dayStartTime : dayStartTime,
+      dayEndTime: isRotational ? dayEndTime : dayEndTime,
+      nightStartTime: isRotational ? nightStartTime : nightStartTime,
+      nightEndTime: isRotational ? nightEndTime : nightEndTime,
+      rotationCycle: isRotational ? rotationCycle : rotationCycle
     }
 
     if (!employerId) {
       // Simulation logic
       if (modalMode === 'add') {
-        const newShiftObj = { id: `mock-${Date.now()}`, ...shiftData }
+        const newShiftObj = { id: `mock-${Date.now()}`, ...shiftData } as Shift
         setShifts((prev) => [...prev, newShiftObj])
       } else if (selectedShiftId) {
         setShifts((prev) =>
-          prev.map((s) => (s.id === selectedShiftId ? { ...s, ...shiftData } : s))
+          prev.map((s) => (s.id === selectedShiftId ? { ...s, ...shiftData } as Shift : s))
         )
       }
       setSaving(false)
@@ -211,7 +246,7 @@ export default function ShiftsPage() {
       }
 
       if (shiftId) {
-        // Find which employees were added and which were removed
+        // Find added and removed employees
         const addedEmployees = assignedEmployeeIds.filter((id) => !oldEmployeeIds.includes(id))
         const removedEmployees = oldEmployeeIds.filter((id) => !assignedEmployeeIds.includes(id))
 
@@ -220,7 +255,7 @@ export default function ShiftsPage() {
           const empRef = doc(db, 'employers', employerId, 'employees', empId)
           await updateDoc(empRef, {
             shiftId: shiftId,
-            shiftName: shiftName,
+            shiftName: isRotational ? `${shiftName} (Rotational)` : shiftName,
           })
         }
 
@@ -278,7 +313,7 @@ export default function ShiftsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 text-left">
         <div>
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Shifts Management</h1>
-          <p className="text-slate-600 font-medium">Create shifts, edit timings, and assign employees dynamically.</p>
+          <p className="text-slate-600 font-medium">Create shifts, edit timings, and assign employees dynamically to fixed or rotational cycles.</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -314,7 +349,14 @@ export default function ShiftsPage() {
                 <div>
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-extrabold text-slate-800">{shift.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl font-extrabold text-slate-800">{shift.name}</h3>
+                        {shift.isRotational && (
+                          <span className="flex items-center gap-1 px-2.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded-full text-[9px] font-black uppercase tracking-wider">
+                            <RefreshCw size={10} className="animate-spin-slow" /> Rotational
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1.5 mt-2 bg-indigo-50/50 text-indigo-600 border border-indigo-100/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit">
                         <Calendar size={12} /> {shift.daysPerWeek} days / week
                       </div>
@@ -339,12 +381,32 @@ export default function ShiftsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-slate-50/60 border border-slate-100 p-3 rounded-2xl mb-6 text-slate-700 w-fit">
-                    <Clock size={16} className="text-purple-500" />
-                    <span className="text-sm font-bold">
-                      {shift.startTime} - {shift.endTime}
-                    </span>
-                  </div>
+                  {shift.isRotational ? (
+                    <div className="space-y-2 mb-6">
+                      <div className="flex items-center gap-2 bg-purple-50/50 border border-purple-100/30 p-2.5 rounded-2xl text-slate-700 w-fit">
+                        <Clock size={15} className="text-purple-500" />
+                        <span className="text-xs font-extrabold">
+                          Week 1 Day: {shift.dayStartTime || '09:00'} - {shift.dayEndTime || '17:00'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-indigo-50/50 border border-indigo-100/30 p-2.5 rounded-2xl text-slate-700 w-fit">
+                        <Clock size={15} className="text-indigo-500" />
+                        <span className="text-xs font-extrabold">
+                          Week 2 Night: {shift.nightStartTime || '17:00'} - {shift.nightEndTime || '01:00'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-purple-600 font-bold uppercase tracking-wider pl-1 mt-1">
+                        Rotates: {shift.rotationCycle || '1 week Day / 1 week Night'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 bg-slate-50/60 border border-slate-100 p-3 rounded-2xl mb-6 text-slate-700 w-fit">
+                      <Clock size={16} className="text-purple-500" />
+                      <span className="text-sm font-bold">
+                        {shift.startTime} - {shift.endTime}
+                      </span>
+                    </div>
+                  )}
 
                   <div>
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
@@ -366,9 +428,15 @@ export default function ShiftsPage() {
                             </div>
                             <div>
                               <p className="text-xs font-extrabold text-slate-800">{emp.name}</p>
-                              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
-                                {emp.role || emp.department}
-                              </p>
+                              {shift.isRotational ? (
+                                <p className="text-[9px] text-purple-600 font-bold uppercase tracking-wider">
+                                  Alternating Day/Night Roster
+                                </p>
+                              ) : (
+                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                  {emp.role || emp.department}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -437,36 +505,118 @@ export default function ShiftsPage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Night Shift"
+                    placeholder="e.g. Roster Rotational A"
                     value={shiftName}
                     onChange={(e) => setShiftName(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
                   />
                 </div>
 
-                {/* Timings */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Start Time</label>
-                    <input
-                      type="time"
-                      required
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
-                    />
+                {/* Rotational Toggle */}
+                <div className="p-4 bg-purple-50/50 border border-purple-100 rounded-2xl flex items-center justify-between">
+                  <div className="space-y-0.5 pr-2">
+                    <p className="text-sm font-black text-purple-950 flex items-center gap-1.5">
+                      <RefreshCw size={14} className={isRotational ? 'animate-spin-slow' : ''} />
+                      Rotational Shift Schedule
+                    </p>
+                    <p className="text-[10px] text-purple-700/80 font-bold">Alternates employees between day & night timings weekly.</p>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">End Time</label>
-                    <input
-                      type="time"
-                      required
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
-                    />
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isRotational}
+                    onChange={(e) => setIsRotational(e.target.checked)}
+                    className="w-5 h-5 rounded text-purple-600 focus:ring-purple-500 cursor-pointer"
+                  />
                 </div>
+
+                {/* Timings */}
+                {!isRotational ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Start Time</label>
+                      <input
+                        type="time"
+                        required={!isRotational}
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">End Time</label>
+                      <input
+                        type="time"
+                        required={!isRotational}
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4 border-l-2 border-purple-200 pl-4">
+                    {/* Day Timings */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-black text-purple-700 uppercase tracking-wider mb-2">Week 1 Day Start</label>
+                        <input
+                          type="time"
+                          required={isRotational}
+                          value={dayStartTime}
+                          onChange={(e) => setDayStartTime(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-purple-700 uppercase tracking-wider mb-2">Week 1 Day End</label>
+                        <input
+                          type="time"
+                          required={isRotational}
+                          value={dayEndTime}
+                          onChange={(e) => setDayEndTime(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Night Timings */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-black text-indigo-700 uppercase tracking-wider mb-2">Week 2 Night Start</label>
+                        <input
+                          type="time"
+                          required={isRotational}
+                          value={nightStartTime}
+                          onChange={(e) => setNightStartTime(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-indigo-700 uppercase tracking-wider mb-2">Week 2 Night End</label>
+                        <input
+                          type="time"
+                          required={isRotational}
+                          value={nightEndTime}
+                          onChange={(e) => setNightEndTime(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Rotation Cycle */}
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Rotation Cycle</label>
+                      <input
+                        type="text"
+                        required={isRotational}
+                        value={rotationCycle}
+                        onChange={(e) => setRotationCycle(e.target.value)}
+                        placeholder="e.g. 1 week Day / 1 week Night"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 text-sm font-semibold transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Days per Week */}
                 <div>
@@ -553,6 +703,20 @@ export default function ShiftsPage() {
           </div>
         )}
       </AnimatePresence>
+      
+      <style jsx global>{`
+        @keyframes spinSlow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin-slow {
+          animation: spinSlow 8s linear infinite;
+        }
+      `}</style>
     </EmployerLayout>
   )
 }

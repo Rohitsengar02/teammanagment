@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Filter, CheckCircle, Clock, AlertCircle, Calendar, Sparkles, X, ChevronRight, CheckCircle2, User, AlertTriangle, Loader2, Star, Trash2 } from 'lucide-react'
 import { mockAssignedTasks, mockEmployers } from '@/lib/mock-data'
 import { useState, useEffect } from 'react'
-import { collection, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc, deleteField } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc, deleteField, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
 export default function TasksPage() {
@@ -42,47 +42,73 @@ export default function TasksPage() {
 
   const employerId = typeof window !== 'undefined' ? localStorage.getItem('registeredEmployerId') : null
 
-  // Fetch tasks and employees
-  const fetchData = async () => {
-    setLoading(true)
-    if (!employerId) {
-      setTasks([])
-      setEmployees(mockEmployers[0].employees)
-      setLoading(false)
-      return
-    }
+  // Fetch tasks and employees with real-time sync
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined
 
-    try {
-      // Fetch Employees
-      const empSnap = await getDocs(collection(db, 'employers', employerId, 'employees'))
-      const empList: any[] = []
-      empSnap.forEach((doc) => {
-        empList.push({ id: doc.id, ...doc.data() })
-      })
-      const finalEmployees = empList.length > 0 ? empList : mockEmployers[0].employees
-      setEmployees(finalEmployees)
-      if (finalEmployees.length > 0) {
-        setAssignedTo(finalEmployees[0].id)
+    const init = async () => {
+      setLoading(true)
+      const currentEmployerId = typeof window !== 'undefined' ? localStorage.getItem('registeredEmployerId') : null
+      if (!currentEmployerId) {
+        setTasks([])
+        setEmployees(mockEmployers[0].employees)
+        setLoading(false)
+        return
       }
 
-      // Fetch Tasks
-      const taskSnap = await getDocs(collection(db, 'employers', employerId, 'tasks'))
-      const taskList: any[] = []
-      taskSnap.forEach((doc) => {
-        taskList.push({ id: doc.id, ...doc.data() })
-      })
-      setTasks(taskList)
-    } catch (error) {
-      console.error('Error fetching tasks/employees:', error)
-      setTasks([])
-      setEmployees(mockEmployers[0].employees)
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        // Fetch Employees once
+        const empSnap = await getDocs(collection(db, 'employers', currentEmployerId, 'employees'))
+        const empList: any[] = []
+        empSnap.forEach((doc) => {
+          empList.push({ id: doc.id, ...doc.data() })
+        })
+        const finalEmployees = empList.length > 0 ? empList : mockEmployers[0].employees
+        setEmployees(finalEmployees)
+        if (finalEmployees.length > 0) {
+          setAssignedTo(finalEmployees[0].id)
+        }
 
-  useEffect(() => {
-    fetchData()
+        // Setup real-time listener for Tasks
+        unsubscribe = onSnapshot(
+          collection(db, 'employers', currentEmployerId, 'tasks'),
+          (taskSnap) => {
+            const taskList: any[] = []
+            taskSnap.forEach((doc) => {
+              taskList.push({ id: doc.id, ...doc.data() })
+            })
+            // Sort tasks desc by createdAt
+            taskList.sort((a, b) => {
+              const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+              const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+              return dateB - dateA
+            })
+            setTasks(taskList)
+
+            // Update selectedTask details dynamically in real-time
+            setSelectedTask((prev: any) => {
+              if (!prev) return null
+              const updated = taskList.find((t) => t.id === prev.id)
+              return updated || null
+            })
+          },
+          (error) => {
+            console.error('Error fetching tasks via listener:', error)
+          }
+        )
+      } catch (error) {
+        console.error('Error fetching employees:', error)
+        setEmployees(mockEmployers[0].employees)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    init()
+
+    return () => {
+      if (unsubscribe) unsubscribe()
+    }
   }, [])
 
   const handleAssignTask = async (e: React.FormEvent) => {
@@ -108,6 +134,15 @@ export default function TasksPage() {
       if (employerId) {
         const docRef = await addDoc(collection(db, 'employers', employerId, 'tasks'), newTask)
         setTasks((prev) => [{ id: docRef.id, ...newTask }, ...prev])
+
+        // Create notification for employee
+        await addDoc(collection(db, 'employers', employerId, 'employees', assignedTo, 'notifications'), {
+          title: 'New Task Assigned',
+          message: `You have been assigned a new task: "${taskTitle}"`,
+          type: 'task',
+          read: false,
+          createdAt: new Date().toISOString()
+        })
       } else {
         // simulation fallback
         setTasks((prev) => [{ id: `mock-${Date.now()}`, ...newTask }, ...prev])
@@ -522,8 +557,8 @@ export default function TasksPage() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between p-8 text-left z-10"
             >
-              <div>
-                <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6 flex-shrink-0">
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="text-purple-600" size={22} />
                     <h2 className="text-xl font-black text-slate-900">Task Detail View</h2>
@@ -533,7 +568,7 @@ export default function TasksPage() {
                   </button>
                 </div>
 
-                <div className="space-y-6">
+                <div className="flex-1 overflow-y-auto pr-2 space-y-6 scrollbar-thin">
                   {/* Status Banner */}
                   <div className={`p-4 rounded-2xl flex items-center gap-3 ${getStatusColor(selectedTask.status)}`}>
                     {getStatusIcon(selectedTask.status)}
@@ -695,7 +730,7 @@ export default function TasksPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-100 pt-5">
+              <div className="border-t border-slate-100 pt-5 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setSelectedTask(null)}
