@@ -21,6 +21,8 @@ import {
   Settings,
   ChevronRight,
   LogOut,
+  Layers,
+  Video,
 } from 'lucide-react'
 
 interface MenuSection {
@@ -63,8 +65,11 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
-    label: 'Communication',
+    label: 'Collaboration',
     items: [
+      { label: 'Team Chat', href: '/chat', icon: <MessageSquare size={20} /> },
+      { label: 'Workspaces', href: '/workspaces', icon: <Layers size={20} /> },
+      { label: 'Meetings', href: '/video-meetings', icon: <Video size={20} /> },
       { label: 'Notes', href: '/employer/notes', icon: <MessageSquare size={20} /> },
     ],
   },

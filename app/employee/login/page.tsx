@@ -99,6 +99,22 @@ export default function EmployeeLoginPage() {
           <div className="h-2 bg-gradient-to-r from-blue-600 to-cyan-600" />
 
           <div className="p-8">
+            {/* Portal Switcher (Employer / Employee) */}
+            <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-8 max-w-[280px] mx-auto">
+              <Link
+                href="/employer/login"
+                className="flex-1 py-2 text-sm font-bold rounded-xl transition-all text-center text-slate-500 hover:text-slate-800"
+              >
+                Employer
+              </Link>
+              <Link
+                href="/employee/login"
+                className="flex-1 py-2 text-sm font-bold rounded-xl transition-all text-center bg-white text-blue-700 shadow-sm"
+              >
+                Employee
+              </Link>
+            </div>
+
             {/* Logo */}
             <div className="flex items-center justify-center gap-3 mb-8">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">

@@ -9,7 +9,7 @@ import {
   Calendar,
   FileText,
   Home,
-  Menu,
+  Menu, 
   MessageSquare,
   Settings,
   Target,
@@ -18,10 +18,15 @@ import {
   ChevronRight,
   LogOut,
   Bell,
+  Video,
+  Layers,
 } from 'lucide-react'
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/chat', label: 'Team Chat', icon: MessageSquare },
+  { href: '/video-meetings', label: 'Meetings', icon: Video },
+  { href: '/workspaces', label: 'Workspaces', icon: Layers },
   { href: '/leads', label: 'Leads', icon: Target },
   { href: '/pipeline', label: 'Pipeline', icon: BarChart3 },
   { href: '/tasks', label: 'Tasks', icon: FileText },

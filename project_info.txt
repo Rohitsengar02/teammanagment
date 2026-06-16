@@ -1,0 +1,160 @@
+========================================================================
+GLOWAI CRM & TEAM MANAGEMENT SYSTEM - PROJECT INFORMATION & ROUTE DIRECTORY
+========================================================================
+
+This document provides a comprehensive summary of all page routes (Next.js App Router)
+present in the LeadFlow/GlowAI project. It details the functionalities, roles, and UI
+states for both the Employer and Employee portals.
+
+------------------------------------------------------------------------
+1. ROOT & AUTHENTICATION PAGES
+------------------------------------------------------------------------
+
+* landing Page (app/page.tsx)
+  - Purpose: Main application landing page.
+  - Features: Features showcase, dynamic Stripe-like gradient backgrounds, real-time
+    database statistics (total employees, tasks, leads, companies), team showcase,
+    pricing plans (Starter, Professional, Enterprise), and links to portals.
+
+* Settings (app/settings/page.tsx)
+  - Purpose: Settings and Profile Management.
+  - Features: Updates passwords, displays profile cards, and summarizes active/pending tasks.
+
+* Employer Login & Onboarding (app/employer/login/page.tsx)
+  - Purpose: Authentication and multi-step registration wizard for employers.
+  - Features: 
+    - Portal Switcher tab at the top (switch to Employee Login).
+    - Multi-step Sign Up wizard:
+      * Step 0: Credentials (email, mobile, password).
+      * Step 1: Company Profile (name, industry, size).
+      * Step 2: Feature Selection (Leads, Pipelines, Shifts, etc.).
+      * Step 3: Team Configuration (number of employees, office location, shift model).
+      * Step 4: Summary & Firestore Registration.
+
+* Employee Login (app/employee/login/page.tsx)
+  - Purpose: Authentication portal for staff members.
+  - Features: 
+    - Portal Switcher tab at the top (switch to Employer Login).
+    - Querying across the Firestore subcollection group to log in employees.
+    - Fallback mechanism to mock data for demoing.
+
+------------------------------------------------------------------------
+2. EMPLOYEE PORTAL PAGES
+------------------------------------------------------------------------
+
+* Employee Dashboard (app/dashboard/page.tsx)
+  - Purpose: Main operational hub for logged-in employees.
+  - Features: Real-time metrics on pending tasks, current shifts, upcoming client meetings, and active leads.
+
+* Employee Dashboard Redirect (app/employee/dashboard/page.tsx)
+  - Purpose: Internal employee overview page redirect.
+
+* Employee Tasks Page (app/tasks/page.tsx)
+  - Purpose: Tasks assigned to the employee by the employer.
+  - Features: Shows task status, lets employees mark tasks "In Progress", and complete them with accomplishment reports.
+
+* Employee Leads Management (app/leads/page.tsx)
+  - Purpose: Lead capture and qualification.
+  - Features: Categorizes active pipelines and prospects.
+
+* Employee Lead Details (app/leads/[id]/page.tsx)
+  - Purpose: Detailed notes and history for a specific client lead.
+
+* Employee Leave Requests (app/leaves/page.tsx)
+  - Purpose: Form to apply for time-off.
+  - Features: Submits leave requests with type, reason, and duration. Shows approval status.
+
+* Employee Notifications (app/notifications/page.tsx)
+  - Purpose: Live updates center.
+  - Features: Displays alerts when an employer approves a leave or assigns a new task.
+
+* Employee Calendar (app/calendar/page.tsx)
+  - Purpose: Calendar and shift log scheduler.
+
+* Employee Deals Pipeline (app/pipeline/page.tsx)
+  - Purpose: Kanban-style board for sales pipeline tracking.
+
+* Contacts Directory (app/contacts/page.tsx)
+  - Purpose: Master list of client contacts.
+
+* Documents Hub (app/documents/page.tsx)
+  - Purpose: Uploaded templates and company handbooks.
+
+* Notes Notebook (app/notes/page.tsx)
+  - Purpose: Scratchpad for sales ideas or task summaries.
+
+* Companies Register (app/companies/page.tsx)
+  - Purpose: Directory of client accounts/companies.
+
+* Employee Analytics (app/analytics/page.tsx)
+  - Purpose: Employee performance metrics, closed deals, and tasks solved.
+
+------------------------------------------------------------------------
+3. EMPLOYER PORTAL PAGES
+------------------------------------------------------------------------
+
+* Employer Dashboard (app/employer/dashboard/page.tsx)
+  - Purpose: Unified command panel for the company owner/employer.
+  - Features: Displays general business KPIs, task completion rates, leaf states, and active team members.
+
+* Employees List (app/employer/employees/page.tsx)
+  - Purpose: Employee Directory.
+  - Features: 
+    - Bulk Import: Supports XML, CSV, and Excel (.xlsx, .xls) uploads.
+    - Template Downloads: Interactive buttons to download formatting templates.
+    - Deletion: Delete trash button on all cards to remove employees from Firestore.
+
+* Add Employee Form (app/employer/employees/add/page.tsx)
+  - Purpose: Single employee creation.
+  - Features: Simple form input matching predefined fields (name, email, password, location, role, department).
+
+* Employee Profile Details (app/employer/employees/[id]/page.tsx)
+  - Purpose: In-depth metrics for a single employee's activity.
+
+* Employee Client Mapping (app/employer/employees/[id]/clients/page.tsx)
+  - Purpose: View/assign client accounts to a specific staff member.
+
+* Employer Task Allocator (app/employer/tasks/page.tsx)
+  - Purpose: Task board for creating and distributing tasks to employees.
+
+* Employer Leaves Portal (app/employer/leaves/page.tsx)
+  - Purpose: Leave approvals dashboard.
+  - Features: List of time-off requests with inline "Approve" and "Reject" actions.
+
+* Employer Shift Scheduler (app/employer/shifts/page.tsx)
+  - Purpose: Employee shift assignments.
+  - Features: Day/night shift allocations and custom "Rotational Shift" options (automatically switching employees between Day and Night shift weekly).
+
+* Attendance Logs (app/employer/attendance/page.tsx)
+  - Purpose: Daily sign-in and sign-out tracking sheet.
+
+* Payroll Portal (app/employer/payroll/page.tsx)
+  - Purpose: Generates salary summaries and paystubs.
+
+* Performance KPIs (app/employer/performance/page.tsx)
+  - Purpose: Review rating metrics per employee.
+
+* Analytics Dashboard (app/employer/analytics/page.tsx)
+  - Purpose: Advanced visual report charts showing company revenue, sales, and employee progress.
+
+* Company Reports (app/employer/reports/page.tsx)
+  - Purpose: Custom export templates for monthly reports.
+
+* Employer Settings (app/employer/settings/page.tsx)
+  - Purpose: Updates company information and branding colors.
+
+* Employer Documents (app/employer/documents/page.tsx)
+  - Purpose: Shared files library for company-wide access.
+
+* Employer Notes (app/employer/notes/page.tsx)
+  - Purpose: Internal reminders board.
+
+------------------------------------------------------------------------
+4. TECH/ADMIN PORTAL PAGES
+------------------------------------------------------------------------
+
+* Tech Login (app/tech/login/page.tsx)
+  - Purpose: Access portal for system administrators.
+
+* Tech Dashboard (app/tech/dashboard/page.tsx)
+  - Purpose: Database configurations and system logs.
