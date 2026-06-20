@@ -121,10 +121,10 @@ export default function LeadsPage() {
     const loggedInEmployeeStr = localStorage.getItem('loggedInEmployee')
     let newLeadId = `lead_${Date.now()}`
     const newLeadData = {
-      name: formData.name,
+      name: formData.name.trim() || 'Unnamed Lead',
       email: formData.email,
       phone: formData.phone,
-      company: formData.company,
+      company: formData.company.trim() || 'N/A',
       status: formData.status,
       value: Number(formData.value) || 0,
       lastContact: new Date().toISOString().split('T')[0],
@@ -560,7 +560,6 @@ export default function LeadsPage() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Lead Name</label>
                     <input
                       type="text"
-                      required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g. Rajesh Kumar"
@@ -573,7 +572,6 @@ export default function LeadsPage() {
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                       <input
                         type="email"
-                        required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="e.g. rajesh@techcorp.com"
@@ -584,7 +582,6 @@ export default function LeadsPage() {
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Phone</label>
                       <input
                         type="tel"
-                        required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="e.g. +91-98765-43210"
@@ -598,7 +595,6 @@ export default function LeadsPage() {
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Company</label>
                       <input
                         type="text"
-                        required
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                         placeholder="e.g. TechCorp India"
@@ -609,7 +605,6 @@ export default function LeadsPage() {
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Deal Value (INR)</label>
                       <input
                         type="number"
-                        required
                         value={formData.value}
                         onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                         placeholder="e.g. 500000"

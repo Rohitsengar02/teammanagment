@@ -18,6 +18,10 @@ export default function EmployerLoginPage() {
   const [password, setPassword] = useState('')
   const [mobile, setMobile] = useState('')
 
+  // Multi-company accounts selection state
+  const [matchingCompanies, setMatchingCompanies] = useState<any[]>([])
+  const [showCompanySelect, setShowCompanySelect] = useState(false)
+
   // Multi-step signup onboarding state
   const [step, setStep] = useState(0) // 0 = Credentials, 1 = Company, 2 = Features, 3 = Team, 4 = Review
 
@@ -49,12 +53,27 @@ export default function EmployerLoginPage() {
     }
   }
 
+  // Handle final selection from multiple company accounts
+  const handleSelectCompany = async (empId: string) => {
+    setIsLoading(true)
+    try {
+      localStorage.setItem('registeredEmployerId', empId)
+      const mockToken = `token_${Math.random().toString(36).substring(2, 15)}_${empId}`
+      localStorage.setItem('employerAccessToken', mockToken)
+      router.push('/employer/dashboard')
+    } catch (err) {
+      console.error('Error selecting company:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   // Handle simulated login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      // Query Firebase for existing account by email
+      // Query Firebase for existing accounts by email
       const q = query(collection(db, 'employers'), where('email', '==', email))
       const querySnapshot = await getDocs(q)
       
@@ -64,25 +83,29 @@ export default function EmployerLoginPage() {
         return
       }
 
-      const empDoc = querySnapshot.docs[0]
-      const empData = empDoc.data()
+      // Map matching documents and filter by matching password
+      const matchingDocs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }))
+        .filter(emp => emp.password === password)
 
-      // Enforce password check
-      if (empData.password && empData.password !== password) {
+      if (matchingDocs.length === 0) {
         alert('Incorrect password. Please try again.')
         setIsLoading(false)
         return
       }
 
-      const docId = empDoc.id
+      if (matchingDocs.length === 1) {
+        const emp = matchingDocs[0]
+        localStorage.setItem('registeredEmployerId', emp.id)
+        const mockToken = `token_${Math.random().toString(36).substring(2, 15)}_${emp.id}`
+        localStorage.setItem('employerAccessToken', mockToken)
 
-      // Store doc ID and generate an access token
-      localStorage.setItem('registeredEmployerId', docId)
-      const mockToken = `token_${Math.random().toString(36).substring(2, 15)}_${docId}`
-      localStorage.setItem('employerAccessToken', mockToken)
-
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      router.push('/employer/dashboard')
+        await new Promise((resolve) => setTimeout(resolve, 800))
+        router.push('/employer/dashboard')
+      } else {
+        // Show company selection modal overlay
+        setMatchingCompanies(matchingDocs)
+        setShowCompanySelect(true)
+      }
     } catch (err) {
       console.error('Error logging in:', err)
       alert('Login failed. Please check your network or credentials.')
@@ -614,6 +637,64 @@ export default function EmployerLoginPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Company Selector Modal overlay */}
+      <AnimatePresence>
+        {showCompanySelect && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              onClick={() => setShowCompanySelect(false)}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 z-10 flex flex-col"
+            >
+              <div className="h-2 bg-gradient-to-r from-purple-600 to-pink-600" />
+              
+              <div className="p-8">
+                <h3 className="text-2xl font-black text-slate-900 mb-2 text-center">Select Company Profile</h3>
+                <p className="text-sm text-slate-500 text-center mb-6">
+                  Multiple registered companies found for <strong className="text-slate-800">{email}</strong>. Please choose which workspace to open:
+                </p>
+
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                  {matchingCompanies.map((emp) => (
+                    <button
+                      key={emp.id}
+                      onClick={() => handleSelectCompany(emp.id)}
+                      className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-purple-50 border border-slate-100 hover:border-purple-200 rounded-2xl text-left transition-all cursor-pointer group"
+                    >
+                      <div>
+                        <h4 className="font-extrabold text-slate-900 group-hover:text-purple-700 transition-colors text-sm">
+                          {emp.companyName || 'Unnamed Company'}
+                        </h4>
+                        <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                          {emp.industry} • {emp.companySize} employees
+                        </p>
+                      </div>
+                      <ArrowRight size={16} className="text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setShowCompanySelect(false)}
+                  className="w-full mt-6 py-3 rounded-xl border border-slate-200 text-slate-655 font-bold hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
